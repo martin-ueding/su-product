@@ -1,8 +1,5 @@
 // Copyright © 2015 Martin Ueding <dev@martin-ueding.de>
 
-var dim_a = 3;
-var dim_b = 4;
-
 var generate_weights = function(dim) {
     var start = - (dim - 1) / 2.0;
     var end = - start;
@@ -15,13 +12,7 @@ var generate_weights = function(dim) {
     }
 
     return weights;
-}
-
-var A = generate_weights(dim_a);
-var B = generate_weights(dim_b);
-
-console.log(A);
-console.log(B);
+};
 
 // http://jszen.com/best-way-to-get-unique-values-of-an-array-in-javascript.7.html
 Array.prototype.unique = function() {
@@ -34,7 +25,7 @@ Array.prototype.unique = function() {
         }
     }
     return r;
-}
+};
 
 Array.prototype.subtract = function(subset) {
     var used_subset = {};
@@ -54,18 +45,33 @@ Array.prototype.subtract = function(subset) {
     }
 
     return result;
-}
+};
+
+var number_compare = function (a, b) { return a - b; };
+
+var input_dims = [9, 4, 1, 4];
+
+var input_weights = input_dims.map(generate_weights);
 
 var full_product = [];
-for (var Ai = 0; Ai < A.length; ++Ai) {
-    for (var Bi = 0; Bi < B.length; ++Bi) {
-        console.log(Ai);
-        var a = A[Ai];
-        var b = B[Bi];
+var first = input_weights[0];
 
-        full_product.push(a + b);
+for (var input = 1; input < input_dims.length; ++input) {
+    full_product = [];
+    var second = input_weights[input];
+    for (var Ai = 0; Ai < first.length; ++Ai) {
+        for (var Bi = 0; Bi < second.length; ++Bi) {
+            console.log(Ai);
+            var a = first[Ai];
+            var b = second[Bi];
+
+            full_product.push(a + b);
+        }
     }
+    var first = full_product;
 }
+
+full_product.sort(number_compare);
 
 console.log('full_product');
 console.log(full_product);
@@ -98,6 +104,11 @@ for (var i = 0; i < multiplets.length; ++i) {
     dims.push(dim);
 }
 
-dims.sort();
+dims.sort(number_compare);
 
 console.log(dims);
+
+var input_total_dim = input_dims.reduce(function (a, b) { return a * b; });
+var result_total_dim = dims.reduce(function (a, b) { return a + b; });
+
+console.log(input_total_dim, result_total_dim);
