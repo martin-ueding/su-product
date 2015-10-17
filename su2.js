@@ -49,66 +49,71 @@ Array.prototype.subtract = function(subset) {
 
 var number_compare = function (a, b) { return a - b; };
 
-var input_dims = [9, 4, 1, 4];
+var get_coupled_dims = function(input_dims) {
+    var input_weights = input_dims.map(generate_weights);
 
-var input_weights = input_dims.map(generate_weights);
+    var full_product = [];
+    var first = input_weights[0];
 
-var full_product = [];
-var first = input_weights[0];
+    for (var input = 1; input < input_dims.length; ++input) {
+        full_product = [];
+        var second = input_weights[input];
+        for (var Ai = 0; Ai < first.length; ++Ai) {
+            for (var Bi = 0; Bi < second.length; ++Bi) {
+                var a = first[Ai];
+                var b = second[Bi];
 
-for (var input = 1; input < input_dims.length; ++input) {
-    full_product = [];
-    var second = input_weights[input];
-    for (var Ai = 0; Ai < first.length; ++Ai) {
-        for (var Bi = 0; Bi < second.length; ++Bi) {
-            console.log(Ai);
-            var a = first[Ai];
-            var b = second[Bi];
-
-            full_product.push(a + b);
+                full_product.push(a + b);
+            }
         }
-    }
-    var first = full_product;
-}
-
-full_product.sort(number_compare);
-
-console.log('full_product');
-console.log(full_product);
-
-var remainder = full_product;
-var multiplets = []
-
-do {
-    var unique = remainder.unique();
-    remainder = remainder.subtract(unique);
-
-    console.log('unique');
-    console.log(unique);
-    console.log('remainder');
-    console.log(remainder);
-
-    if (unique.length > 0) {
-        multiplets.push(unique);
+        var first = full_product;
     }
 
-} while  (remainder.length > 0);
+    full_product.sort(number_compare);
 
-console.log(multiplets);
+    var remainder = full_product;
+    var multiplets = []
 
-var dims = [];
+        do {
+            var unique = remainder.unique();
+            remainder = remainder.subtract(unique);
 
-for (var i = 0; i < multiplets.length; ++i) {
-    var multiplet = multiplets[i];
-    var dim = multiplet.length;
-    dims.push(dim);
+            if (unique.length > 0) {
+                multiplets.push(unique);
+            }
+
+        } while  (remainder.length > 0);
+
+    var dims = [];
+
+    for (var i = 0; i < multiplets.length; ++i) {
+        var multiplet = multiplets[i];
+        var dim = multiplet.length;
+        dims.push(dim);
+    }
+
+    dims.sort(number_compare);
+
+    var input_total_dim = input_dims.reduce(function (a, b) { return a * b; }, 0);
+    var result_total_dim = dims.reduce(function (a, b) { return a + b; }, 0);
+
+    return dims;
 }
 
-dims.sort(number_compare);
+var interact_with_form = function() {
+    var input = document.getElementById('su2input');
+    var parts = input.value.split(/ +|,/);
+    var out = get_coupled_dims(parts);
 
-console.log(dims);
+    var list = document.getElementById('su2-output');
 
-var input_total_dim = input_dims.reduce(function (a, b) { return a * b; });
-var result_total_dim = dims.reduce(function (a, b) { return a + b; });
-
-console.log(input_total_dim, result_total_dim);
+    while (list.firstChild) {
+        list.removeChild(list.firstChild);
+    }
+    for (var i = 0; i < out.length; ++i) {
+        var element = document.createElement('li');
+        var text = document.createTextNode(out[i]);
+        element.appendChild(text);
+        list.appendChild(element);
+    }
+}
